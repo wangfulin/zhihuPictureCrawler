@@ -1,5 +1,6 @@
 var download = require('./download.js');
 var callback = require('./error.js');
+var request  = require('request');
 
 var _title,
 	_answers;
@@ -14,14 +15,14 @@ ZhihuQuestion.prototype = {
 		getTitleAndAnswers(this.id);
 
 		// 获取到 title 和 answers 之后再进行下面的操作
-		setTimeout(function(){
-			_answers.forEach(function(_answer){
-				_answer.picurls.forEach(function(picurl){
-					var filename = path.join(filePath, _title, _answer.name, (picId++) + '.png');
-					download(picurl, filename, callback);
-				});
-			});
-		}, 0);
+		// setTimeout(function(){
+		// 	_answers.forEach(function(_answer){
+		// 		_answer && _answer.picurls.forEach(function(picurl){
+		// 			var filename = path.join(filePath, _title, _answer.name, (picId++) + '.png');
+		// 			download(picurl, filename, callback);
+		// 		});
+		// 	});
+		// }, 0);
 	}
 };
 
@@ -50,10 +51,22 @@ function getTitleAndAnswers(questionId){
 }
 
 function getTitle(content){
-	var pattern = new RegExp(/<h2\s+class=\"zm-item-title(\s+)?[^>]*\"([^>]*)?>([^<]*?)<\/h2>/);
+	var ptitle = new RegExp('<h2 class="zm-item-title zm-editable-content">((.|\n)*?)<\/h2>');
+	var title   = content.match(ptitle)[1].trim();
+	console.log(title);
+	return title;
 }
 
 function getAnswers(content){
+	var panswer = new RegExp('(<div.*class="zm-item-answer[^-]?.*".*>(.|\n)*?<\/div>)', 'g');
+	var pauthor = new RegExp('<a\s*class="author-link".*>(.*)<\/a><span.*class="bio">(.*)<\/span>');
+	var answersContent = content.match(panswer);
+	console.log(answersContent.length);
+	answersContent.forEach(function(answerContent){
+		console.log(answerContent);
+		var result = answerContent.match(pauthor);
+		// console.log(result);
+	});
 	answers = [];
 	return answers;
 }
